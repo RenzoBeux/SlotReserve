@@ -1,0 +1,61 @@
+// Prisma schema for Booking Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  USER
+}
+enum BookingMode {
+  FLEXIBLE
+  FIXED
+}
+
+model User {
+  id       String   @id @map("firebase_uid")
+  email    String   @unique
+  name     String
+  slug     String   @unique
+  logo     String?
+  primaryColor String?
+  secondaryColor String?
+  role     UserRole
+  timezone String
+  availabilitySlots AvailabilitySlot[]
+  bookings         Booking[]        @relation("UserBookings")
+  ownerBookings    Booking[]        @relation("OwnerBookings")
+}
+
+model AvailabilitySlot {
+  id       String   @id @default(uuid())
+  bookingMode BookingMode @default(FIXED)
+  weekday  Int
+  startTime String
+  endTime   String
+  label     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  maxBookings Int
+  bookings   Booking[]
+}
+
+model Booking {
+  id                String   @id @default(uuid())
+  date              String
+  startTime         String
+  endTime           String
+  ownerId           String
+  owner             User     @relation("OwnerBookings", fields: [ownerId], references: [id])
+  userId            String
+  user              User     @relation("UserBookings", fields: [userId], references: [id])
+  availabilitySlotId String
+  availabilitySlot  AvailabilitySlot @relation(fields: [availabilitySlotId], references: [id])
+  note              String?
+} 

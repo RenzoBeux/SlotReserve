@@ -1,0 +1,55 @@
+# Node
+node_modules/
+
+# Dependency directories
+**/node_modules/
+
+# Build output
+**/dist/
+/build/
+/.next/
+/.turbo/
+/.vercel/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Misc
+*.tgz
+
+# Coverage
+coverage/
+
+# Test output
+/test-results/
+
+# Firebase
+serviceAccountKey.json
+.firebase/
+# ignore all files named service-account.json everywhere
+**/service-account.json
+
+# Others
+*.local

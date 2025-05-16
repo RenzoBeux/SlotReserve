@@ -1,0 +1,10 @@
+{
+    "name": "slotreserve-monorepo",
+    "private": true,
+    "version": "1.0.0",
+    "workspaces": [
+        "backend",
+        "frontend",
+        "ts-rest-contract"
+    ]
+}
