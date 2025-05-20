@@ -36,4 +36,8 @@ export class UserService {
   ): Promise<User> {
     return this.prisma.user.update({ where: { id: uid }, data });
   }
+
+  async getUserBySlug(slug: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { slug } });
+  }
 }

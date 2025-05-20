@@ -8,6 +8,16 @@ export const useGetAvailability = () => {
   });
 };
 
+// Public availability by slug
+export const useGetPublicAvailability = (slug: string) => {
+  // ts-rest/react-query expects path params as the first argument: { slug }
+  return tsrReactQuery.availability.getBySlug.useQuery({
+    queryData: { params: { slug } },
+    queryKey: ["availability", slug],
+    enabled: !!slug, // Only run the query if slug is defined
+  });
+};
+
 export const useCreateAvailability = () => {
   const queryClient = useQueryClient();
   return tsrReactQuery.availability.create.useMutation({

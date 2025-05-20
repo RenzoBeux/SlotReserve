@@ -26,6 +26,14 @@ export class AvailabilityService {
     userId: string,
     data: Omit<AvailabilitySlot, 'id' | 'userId'>,
   ): Promise<AvailabilitySlot> {
+    if (
+      !isValidISODateTime(data.startTime) ||
+      !isValidISODateTime(data.endTime)
+    ) {
+      throw new Error(
+        'startTime and endTime must be valid ISO date-time strings',
+      );
+    }
     return this.prisma.availabilitySlot.create({
       data: { ...data, userId },
     });
@@ -41,6 +49,14 @@ export class AvailabilityService {
     });
     if (!found || found.userId !== userId)
       throw new Error('Not found or forbidden');
+    if (
+      !isValidISODateTime(slot.startTime) ||
+      !isValidISODateTime(slot.endTime)
+    ) {
+      throw new Error(
+        'startTime and endTime must be valid ISO date-time strings',
+      );
+    }
     return this.prisma.availabilitySlot.update({
       where: { id: slot.id },
       data: slot,
@@ -53,6 +69,18 @@ export class AvailabilityService {
     });
     if (!found || found.userId !== userId)
       throw new Error('Not found or forbidden');
+
     await this.prisma.availabilitySlot.delete({ where: { id } });
   }
+}
+
+// Helper for ISO string validation
+// Accepts only full ISO date-time strings (e.g., 2025-05-19T09:00:00.000Z)
+// Returns true if valid, false otherwise
+function isValidISODateTime(str: string): boolean {
+  // ISO 8601 regex (basic, not exhaustive)
+  const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?Z?$/;
+  return (
+    typeof str === 'string' && isoRegex.test(str) && !isNaN(Date.parse(str))
+  );
 }

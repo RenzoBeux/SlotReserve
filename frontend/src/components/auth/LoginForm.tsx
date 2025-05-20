@@ -1,34 +1,40 @@
-
-import { useState } from 'react';
-import { signIn, signUp } from '@/lib/firebase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from "react";
+import { signIn, signUp, signInWithGoogle } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface LoginFormProps {
   redirect?: string;
 }
 
-const LoginForm = ({ redirect = '/dashboard' }: LoginFormProps) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginForm = ({ redirect = "/dashboard" }: LoginFormProps) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       await signIn(email, password);
-      toast.success('Signed in successfully');
+      toast.success("Signed in successfully");
       navigate(redirect);
     } catch (error) {
-      toast.error('Failed to sign in');
+      toast.error("Failed to sign in");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -38,13 +44,27 @@ const LoginForm = ({ redirect = '/dashboard' }: LoginFormProps) => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       await signUp(email, password);
-      toast.success('Account created successfully');
+      toast.success("Account created successfully");
       navigate(redirect);
     } catch (error) {
-      toast.error('Failed to create account');
+      toast.error("Failed to create account");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+      toast.success("Signed in with Google");
+      navigate(redirect);
+    } catch (error) {
+      toast.error("Failed to sign in with Google");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -54,7 +74,9 @@ const LoginForm = ({ redirect = '/dashboard' }: LoginFormProps) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Welcome to Bookify</CardTitle>
+        <CardTitle className="text-2xl text-center">
+          Welcome to Bookify
+        </CardTitle>
         <CardDescription className="text-center">
           Sign in to your account or create a new one
         </CardDescription>
@@ -90,20 +112,22 @@ const LoginForm = ({ redirect = '/dashboard' }: LoginFormProps) => {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col">
-              <Button 
-                type="submit" 
-                className="w-full bg-bookify-500 hover:bg-bookify-600" 
+              <Button
+                type="submit"
+                className="w-full bg-bookify-500 hover:bg-bookify-600"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
-              <p className="mt-4 text-center text-sm text-muted-foreground">
-                Demo accounts: 
-                <br />
-                owner@example.com / password
-                <br />
-                user@example.com / password
-              </p>
+              <Button
+                onClick={handleGoogleSignIn}
+                className="w-full mt-4 bg-red-500 hover:bg-red-600"
+                disabled={isLoading}
+              >
+                {isLoading
+                  ? "Signing In with Google..."
+                  : "Sign In with Google"}
+              </Button>
             </CardFooter>
           </form>
         </TabsContent>
@@ -133,12 +157,12 @@ const LoginForm = ({ redirect = '/dashboard' }: LoginFormProps) => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                type="submit" 
-                className="w-full bg-bookify-500 hover:bg-bookify-600" 
+              <Button
+                type="submit"
+                className="w-full bg-bookify-500 hover:bg-bookify-600"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing Up...' : 'Sign Up'}
+                {isLoading ? "Signing Up..." : "Sign Up"}
               </Button>
             </CardFooter>
           </form>

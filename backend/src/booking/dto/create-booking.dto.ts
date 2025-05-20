@@ -2,13 +2,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateBookingDto {
   @ApiProperty()
-  date: string;
+  startTime: string; // ISO string (date and time)
 
   @ApiProperty()
-  startTime: string;
-
-  @ApiProperty()
-  endTime: string;
+  endTime: string; // ISO string (date and time)
 
   @ApiProperty()
   ownerId: string;

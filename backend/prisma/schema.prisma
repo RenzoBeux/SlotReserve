@@ -19,7 +19,7 @@ enum BookingMode {
 }
 
 model User {
-  id       String   @id @map("firebase_uid")
+  id       String   @id
   email    String   @unique
   name     String
   slug     String   @unique
@@ -48,9 +48,8 @@ model AvailabilitySlot {
 
 model Booking {
   id                String   @id @default(uuid())
-  date              String
-  startTime         String
-  endTime           String
+  startTime         String   // ISO string with date and time
+  endTime           String   // ISO string with date and time
   ownerId           String
   owner             User     @relation("OwnerBookings", fields: [ownerId], references: [id])
   userId            String
@@ -58,4 +57,4 @@ model Booking {
   availabilitySlotId String
   availabilitySlot  AvailabilitySlot @relation(fields: [availabilitySlotId], references: [id])
   note              String?
-} 
+}

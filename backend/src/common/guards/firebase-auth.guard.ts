@@ -28,7 +28,8 @@ export class FirebaseAuthGuard implements CanActivate {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
       (request as AuthenticatedRequest).user = { uid: decodedToken.uid };
       return true;
-    } catch {
+    } catch (e) {
+      console.error('Firebase ID token verification failed:', e);
       throw new UnauthorizedException('Invalid Firebase ID token');
     }
   }

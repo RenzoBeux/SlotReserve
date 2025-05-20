@@ -1,14 +1,11 @@
-import { Controller, UseGuards, Req, Body } from '@nestjs/common';
+import { Controller, Req, Body, Param } from '@nestjs/common';
 import { contract } from '@contract';
 import { AvailabilityService } from './availability.service';
-import {
-  AuthenticatedRequest,
-  FirebaseAuthGuard,
-} from '../common/guards/firebase-auth.guard';
+import { UserService } from '../user/user.service';
+import { AuthenticatedRequest } from '../common/guards/firebase-auth.guard';
 import { Request } from 'express';
 import {
   ApiTags,
-  ApiBearerAuth,
   ApiOperation,
   ApiOkResponse,
   ApiCreatedResponse,
@@ -19,10 +16,8 @@ import { CreateAvailabilityDto } from './dto/create-availability.dto';
 import { UpdateAvailabilityDto } from './dto/update-availability.dto';
 import { DeleteAvailabilityDto } from './dto/delete-availability.dto';
 
-@Controller('availability')
+@Controller()
 @ApiTags('Availability')
-@ApiBearerAuth('firebase-auth')
-@UseGuards(FirebaseAuthGuard)
 export class AvailabilityController {
   @ApiOperation({ summary: 'Bulk create availability slots' })
   @ApiCreatedResponse({
@@ -40,7 +35,30 @@ export class AvailabilityController {
       return { status: 201, body: slots };
     });
   }
-  constructor(private readonly availabilityService: AvailabilityService) {}
+  constructor(
+    private readonly availabilityService: AvailabilityService,
+    private readonly userService: UserService,
+  ) {}
+  @ApiOperation({ summary: 'Get public availability slots by slug' })
+  @ApiOkResponse({
+    description: 'Get public availability slots by slug',
+    type: [Object],
+  })
+  @TsRestHandler(contract.availability.getBySlug)
+  getBySlug(@Param('slug') slug: string) {
+    return tsRestHandler(
+      contract.availability.getBySlug,
+      async (args: { headers: any; params: { slug: string } }) => {
+        const userSlug: string = args.params.slug ?? slug;
+        const user = await this.userService.getUserBySlug(userSlug);
+        if (!user) {
+          return { status: 404, body: null };
+        }
+        const slots = await this.availabilityService.getMine(user.id);
+        return { status: 200, body: slots };
+      },
+    );
+  }
 
   @ApiOperation({ summary: 'Get my availability slots' })
   @ApiOkResponse({ description: 'Get my availability slots', type: [Object] })

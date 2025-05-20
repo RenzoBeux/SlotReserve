@@ -41,29 +41,33 @@ export class BookingService {
 
     // Validate booking according to bookingMode
     if (availabilitySlot.bookingMode === 'FIXED') {
-      // Must match slot exactly
+      // Must match slot exactly (compare only time part)
+      const slotStart = `${data.startTime}`.slice(11, 16);
+      const slotEnd = `${data.endTime}`.slice(11, 16);
       if (
-        data.startTime !== availabilitySlot.startTime ||
-        data.endTime !== availabilitySlot.endTime
+        slotStart !== availabilitySlot.startTime ||
+        slotEnd !== availabilitySlot.endTime
       ) {
         throw new BadRequestException(
           'Booking must match slot times for FIXED mode',
         );
       }
     } else if (availabilitySlot.bookingMode === 'FLEXIBLE') {
-      // Must be inside slot range
+      // Must be inside slot range (compare only time part)
+      const slotStart = `${data.startTime}`.slice(11, 16);
+      const slotEnd = `${data.endTime}`.slice(11, 16);
       if (
         !this.isTimeInRange(
-          data.startTime,
+          slotStart,
           availabilitySlot.startTime,
           availabilitySlot.endTime,
         ) ||
         !this.isTimeInRange(
-          data.endTime,
+          slotEnd,
           availabilitySlot.startTime,
           availabilitySlot.endTime,
         ) ||
-        data.startTime >= data.endTime
+        slotStart >= slotEnd
       ) {
         throw new BadRequestException(
           'Booking must be inside slot range for FLEXIBLE mode',
@@ -72,7 +76,6 @@ export class BookingService {
       // Check for overlap with existing bookings in this slot
       const overlapping = await this.isOverlappingBooking(
         data.availabilitySlotId,
-        data.date,
         data.startTime,
         data.endTime,
       );
@@ -90,18 +93,16 @@ export class BookingService {
   }
 
   /**
-   * Returns true if the given time range overlaps with any existing booking in the same slot and date
+   * Returns true if the given time range overlaps with any existing booking in the same slot
    */
   async isOverlappingBooking(
     availabilitySlotId: string,
-    date: string,
     startTime: string,
     endTime: string,
   ): Promise<boolean> {
     const overlapping = await this.prisma.booking.findFirst({
       where: {
         availabilitySlotId,
-        date,
         OR: [
           {
             startTime: { lt: endTime },

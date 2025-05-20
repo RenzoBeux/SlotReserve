@@ -1,5 +1,4 @@
-
-export type UserRole = 'OWNER' | 'USER';
+export type UserRole = "OWNER" | "USER";
 
 export interface User {
   id: string;
@@ -15,8 +14,8 @@ export interface User {
 export interface TimeSlot {
   id: string;
   ownerId: string;
-  startTime: string; // ISO string
-  endTime: string;  // ISO string
+  startTime: string; // ISO string (date and time)
+  endTime: string; // ISO string (date and time)
   label: string; // e.g., "Consultation", "Haircut"
   available: boolean;
   recurring: boolean;
@@ -29,14 +28,15 @@ export interface TimeSlot {
 
 export interface Booking {
   id: string;
-  slotId: string;
+  slotId?: string;
   ownerId: string;
   userId: string;
-  startTime: string;
-  endTime: string;
-  userName: string;
-  label: string;
-  status: 'confirmed' | 'cancelled' | 'completed';
+  startTime: string; // ISO string (date and time)
+  endTime: string; // ISO string (date and time)
+  userName?: string;
+  label?: string;
+  status?: "confirmed" | "cancelled" | "completed";
+  note?: string;
 }
 
 export interface RecurringSlotTemplate {

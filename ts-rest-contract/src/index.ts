@@ -17,17 +17,18 @@ export interface User {
 export interface AvailabilitySlot {
   id: string;
   weekday: number; // 0 (Sunday) - 6 (Saturday)
-  startTime: string; // 'HH:mm'
-  endTime: string; // 'HH:mm'
+  startTime: string; // ISO string (date and time)
+  endTime: string; // ISO string (date and time)
   label: string;
   userId: string;
+  bookingMode: "FIXED" | "FLEXIBLE";
+  maxBookings: number;
 }
 
 export interface Booking {
   id: string;
-  date: string; // 'YYYY-MM-DD'
-  startTime: string; // 'HH:mm'
-  endTime: string; // 'HH:mm'
+  startTime: string; // ISO string (date and time)
+  endTime: string; // ISO string (date and time)
   ownerId: string;
   userId: string;
   note?: string;
@@ -61,6 +62,18 @@ export const contract = c.router({
       responses: {
         200: c.type<AvailabilitySlot[]>(),
       },
+    }),
+    /**
+     * Get public availability slots for a user by slug (for public calendar)
+     */
+    getBySlug: c.query({
+      method: "GET",
+      path: "/availability/public/:slug",
+      responses: {
+        200: c.type<AvailabilitySlot[]>(),
+        404: c.type<null>(),
+      },
+      pathParams: c.type<{ slug: string }>(),
     }),
     create: c.mutation({
       method: "POST",

@@ -15,6 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as admin from 'firebase-admin';
 
 @Controller()
 @ApiTags('User')
@@ -31,7 +32,28 @@ export class UserController {
     return tsRestHandler(contract.user.getMe, async () => {
       const uid = req.user.uid;
       const user = await this.userService.getMe(uid);
-      if (!user) return { status: 404, body: null };
+      if (!user) {
+        // Fetch info from Firebase if needed
+        const firebaseUser = await admin.auth().getUser(uid);
+        const newUser = await this.userService.findOrCreateUser(
+          firebaseUser.uid,
+          firebaseUser.email || '',
+          firebaseUser.displayName || '',
+        );
+        return {
+          status: 200,
+          body: {
+            ...newUser,
+            logo: newUser.logo === null ? undefined : newUser.logo,
+            primaryColor:
+              newUser.primaryColor === null ? undefined : newUser.primaryColor,
+            secondaryColor:
+              newUser.secondaryColor === null
+                ? undefined
+                : newUser.secondaryColor,
+          },
+        };
+      }
       return {
         status: 200,
         body: {

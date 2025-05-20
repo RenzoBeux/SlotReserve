@@ -1,98 +1,114 @@
-
-import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useAuth, signOut } from '@/lib/firebase';
-import { Calendar, LayoutDashboard, LogOut, Settings, User, Users, Mail, Link as LinkIcon } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth, signOut } from "@/lib/firebase";
+import {
+  Calendar,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  User,
+  Users,
+  Mail,
+  Link as LinkIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useGetMe } from "@/api/hooks/useUser";
 
 const DashboardLayout = () => {
-  const { userData } = useAuth();
+  const { data: meData } = useGetMe();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [emailAddress, setEmailAddress] = useState('');
+  const [emailAddress, setEmailAddress] = useState("");
+  const [userData, setUserData] = useState(null);
 
-  const isOwner = userData?.role === 'OWNER';
+  const isOwner = userData?.role === "OWNER";
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast.success('Signed out successfully');
-      navigate('/login');
+      toast.success("Signed out successfully");
+      navigate("/login");
     } catch (error) {
-      toast.error('Failed to sign out');
+      toast.error("Failed to sign out");
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (meData) {
+      setUserData(meData.body);
+    }
+  }, [meData]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
   const handleCopyLink = () => {
-    const calendarLink = `${window.location.origin}/p/${userData?.slug || 'calendar'}`;
+    const calendarLink = `${window.location.origin}/p/${userData?.slug || "calendar"}`;
     navigator.clipboard.writeText(calendarLink);
-    toast.success('Calendar link copied to clipboard');
+    toast.success("Calendar link copied to clipboard");
   };
 
   const handleSendEmail = () => {
     if (!emailAddress) {
-      toast.error('Please enter an email address');
+      toast.error("Please enter an email address");
       return;
     }
-    
+
     // In a real app, you would send an email here
     toast.success(`Invitation sent to ${emailAddress}`);
-    setEmailAddress('');
+    setEmailAddress("");
     setIsEmailModalOpen(false);
   };
 
   const navItems = [
     {
-      label: 'Dashboard',
-      href: '/dashboard',
+      label: "Dashboard",
+      href: "/dashboard",
       icon: <LayoutDashboard className="w-5 h-5 mr-2" />,
-      showFor: 'both',
+      showFor: "both",
     },
     {
-      label: 'Calendar',
-      href: '/calendar',
+      label: "Calendar",
+      href: "/calendar",
       icon: <Calendar className="w-5 h-5 mr-2" />,
-      showFor: 'both',
+      showFor: "both",
     },
     {
-      label: 'My Bookings',
-      href: '/bookings',
+      label: "My Bookings",
+      href: "/bookings",
       icon: <Calendar className="w-5 h-5 mr-2" />,
-      showFor: 'USER',
+      showFor: "USER",
     },
     {
-      label: 'Settings',
-      href: '/settings',
+      label: "Settings",
+      href: "/settings",
       icon: <Settings className="w-5 h-5 mr-2" />,
-      showFor: 'OWNER',
+      showFor: "OWNER",
     },
     {
-      label: 'Clients',
-      href: '/clients',
+      label: "Clients",
+      href: "/clients",
       icon: <Users className="w-5 h-5 mr-2" />,
-      showFor: 'OWNER',
+      showFor: "OWNER",
     },
   ];
 
@@ -103,8 +119,8 @@ const DashboardLayout = () => {
         <div className="flex items-center">
           <span className="font-bold text-xl text-bookify-500">Bookify</span>
         </div>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="p-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
@@ -119,7 +135,11 @@ const DashboardLayout = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
+              d={
+                isMobileMenuOpen
+                  ? "M6 18L18 6M6 6l12 12"
+                  : "M4 6h16M4 12h16m-7 6h7"
+              }
             />
           </svg>
         </Button>
@@ -131,7 +151,7 @@ const DashboardLayout = () => {
           "md:w-64 bg-card md:flex md:flex-shrink-0 flex-col border-r",
           {
             "fixed inset-0 z-50 flex flex-col": isMobileMenuOpen,
-            "hidden": !isMobileMenuOpen && window.innerWidth < 768,
+            hidden: !isMobileMenuOpen && window.innerWidth < 768,
           }
         )}
       >
@@ -165,16 +185,18 @@ const DashboardLayout = () => {
         <div className="flex-1 overflow-auto py-4">
           <div className="px-4 mb-6">
             <div className="flex items-center space-x-3 py-2">
-              <Link 
-                to="/account" 
+              <Link
+                to="/account"
                 className="w-10 h-10 rounded-full bg-bookify-100 dark:bg-bookify-700 flex items-center justify-center hover:opacity-80 transition-opacity"
               >
                 <User className="w-5 h-5 text-bookify-500 dark:text-bookify-200" />
               </Link>
               <div>
-                <div className="font-medium">{userData?.displayName || userData?.email}</div>
+                <div className="font-medium">
+                  {userData?.displayName || userData?.email}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  {userData?.role === 'OWNER' ? 'Calendar Owner' : 'User'}
+                  {userData?.role === "OWNER" ? "Calendar Owner" : "User"}
                 </div>
               </div>
             </div>
@@ -182,10 +204,7 @@ const DashboardLayout = () => {
 
           <nav className="space-y-1 px-3">
             {navItems.map((item) => {
-              if (
-                item.showFor === 'both' || 
-                item.showFor === userData?.role
-              ) {
+              if (item.showFor === "both" || item.showFor === userData?.role) {
                 return (
                   <Link
                     key={item.href}
@@ -256,12 +275,13 @@ const DashboardLayout = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Send Calendar Invitation</AlertDialogTitle>
             <AlertDialogDescription>
-              Enter the recipient's email address to send them an invitation to view your calendar.
+              Enter the recipient's email address to send them an invitation to
+              view your calendar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
             <Label htmlFor="email">Email Address</Label>
-            <Input 
+            <Input
               id="email"
               type="email"
               placeholder="example@email.com"
@@ -274,7 +294,10 @@ const DashboardLayout = () => {
             <AlertDialogCancel onClick={() => setIsEmailModalOpen(false)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleSendEmail} className="bg-bookify-500 hover:bg-bookify-600">
+            <AlertDialogAction
+              onClick={handleSendEmail}
+              className="bg-bookify-500 hover:bg-bookify-600"
+            >
               Send Invitation
             </AlertDialogAction>
           </AlertDialogFooter>

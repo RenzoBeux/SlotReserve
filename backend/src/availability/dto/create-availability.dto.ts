@@ -4,10 +4,10 @@ export class CreateAvailabilityDto {
   @ApiProperty()
   weekday: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'ISO string (date and time)' })
   startTime: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'ISO string (date and time)' })
   endTime: string;
 
   @ApiProperty()

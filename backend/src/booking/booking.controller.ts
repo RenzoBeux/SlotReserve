@@ -18,7 +18,7 @@ import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { DeleteBookingDto } from './dto/delete-booking.dto';
 
-@Controller('booking')
+@Controller()
 @ApiTags('Booking')
 @ApiBearerAuth('firebase-auth')
 @UseGuards(FirebaseAuthGuard)
