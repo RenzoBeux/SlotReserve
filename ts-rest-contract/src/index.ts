@@ -70,7 +70,13 @@ export const contract = c.router({
       method: "GET",
       path: "/availability/public/:slug",
       responses: {
-        200: c.type<AvailabilitySlot[]>(),
+        200: c.type<{ owner: {
+          id: string;
+          name: string;
+          logo?: string;
+          primaryColor?: string;
+          secondaryColor?: string;
+        }; slots: AvailabilitySlot[] }>(),
         404: c.type<null>(),
       },
       pathParams: c.type<{ slug: string }>(),

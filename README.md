@@ -1,3 +1,13 @@
+
+
+> **Note**
+>
+> This project is a testbed for AI-assisted code generation and development workflows.
+> It was created to evaluate and demonstrate the capabilities of Lovable+ (Cursor) and ChatGPT for building real-world, full-stack applications.
+> All code, architecture, and documentation were generated or refactored using these AI tools. No line of code were written by hand
+
+
+
 # 📅 Booking Platform Monorepo
 
 A simple and flexible SaaS application that allows professionals to share availability and let users book time slots with them.

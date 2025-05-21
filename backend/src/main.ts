@@ -1,5 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { FirebaseAuthGuard } from './common/guards/firebase-auth.guard';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -19,6 +20,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+
+  // Register global FirebaseAuthGuard
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new FirebaseAuthGuard(reflector));
 
   await app.listen(process.env.PORT ?? 3000);
   // Fix CORS issues

@@ -32,52 +32,30 @@ const DEFAULT_LOGO = "/placeholder.svg";
 
 import { useGetPublicAvailability } from "@/api/hooks/useAvailability";
 
-// TEMPORARY: Flag to bypass authentication
-const BYPASS_AUTH = false;
-
 const PublicCalendar = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
-
-  // Owner info: TODO - replace with real API call if available
-  type OwnerType = {
-    id: string;
-    name: string;
-    profession: string;
-    description: string;
-    logo: string;
-    primaryColor: string;
-    secondaryColor: string;
-  };
-  const [owner, setOwner] = useState<OwnerType>({
-    id: "owner-123",
-    name: "Dr. Jane Smith",
-    profession: "Therapist",
-    description:
-      "Specialized in cognitive behavioral therapy with over 10 years of experience.",
-    logo: "",
-    primaryColor: "#7C3AED",
-    secondaryColor: "#8B5CF6",
-  });
-
   // Fetch public slots from API by slug
   const { data: availabilityData, isLoading: isLoadingAvailability } =
     useGetPublicAvailability(slug || "");
   // Map API slots to TimeSlotType for UI
-  const slots: TimeSlotType[] = (availabilityData?.body || []).map((slot) => ({
-    id: slot.id,
-    ownerId: slot.userId,
-    startTime: slot.startTime,
-    endTime: slot.endTime,
-    label: slot.label,
-    available: true, // Assume available unless fully booked
-    recurring: (slot as { recurring?: boolean }).recurring ?? false,
-    dayOfWeek: slot.weekday,
-    bookingMode: slot.bookingMode,
-    maxBookings: slot.maxBookings,
-    bookings: (slot as { bookings?: BookingType[] }).bookings || [], // If API provides bookings, else []
-  }));
+  const slots: TimeSlotType[] = (availabilityData?.body?.slots || []).map(
+    (slot) => ({
+      id: slot.id,
+      ownerId: slot.userId,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      label: slot.label,
+      available: true, // Assume available unless fully booked
+      recurring: (slot as { recurring?: boolean }).recurring ?? false,
+      dayOfWeek: slot.weekday,
+      bookingMode: slot.bookingMode,
+      maxBookings: slot.maxBookings,
+      bookings: (slot as { bookings?: BookingType[] }).bookings || [], // If API provides bookings, else []
+    })
+  );
+  const owner = availabilityData?.body?.owner;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<TimeSlotType | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -128,7 +106,7 @@ const PublicCalendar = () => {
 
   // Booking handler: In a real app, call the booking API here
   const handleBooking = async () => {
-    if (BYPASS_AUTH || user) {
+    if (user) {
       if (selectedSlot?.bookingMode === "FLEXIBLE" && !isTimeRangeValid) {
         toast.error("Please select a valid time range");
         return;
@@ -191,13 +169,12 @@ const PublicCalendar = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <Card className="mb-8">
+        <Card className="mb-4">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-2xl">
                 {owner.name}'s Booking Calendar
               </CardTitle>
-              <CardDescription>{owner.profession}</CardDescription>
             </div>
             <div className="ml-auto">
               {owner.logo ? (
@@ -215,13 +192,11 @@ const PublicCalendar = () => {
               )}
             </div>
           </CardHeader>
-          <CardContent>
-            <p>{owner.description}</p>
-          </CardContent>
+          <CardContent></CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+          <div className="lg:col-span-3">
             <Card>
               <CardHeader>
                 <CardTitle>Select a Date</CardTitle>
@@ -237,7 +212,7 @@ const PublicCalendar = () => {
             </Card>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <Card>
               <CardHeader>
                 <CardTitle>
@@ -273,7 +248,7 @@ const PublicCalendar = () => {
 
       <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
         <DialogContent>
-          {BYPASS_AUTH || user ? (
+          {user ? (
             <>
               <DialogHeader>
                 <DialogTitle>

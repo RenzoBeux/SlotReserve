@@ -28,9 +28,6 @@ const firebaseConfig: FirebaseOptions = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// TEMPORARY: Flag to bypass authentication
-const BYPASS_AUTH = false;
-
 export type UserRole = "OWNER" | "USER";
 
 export interface UserData {
@@ -42,40 +39,21 @@ export interface UserData {
 
 // Sign in with email and password
 export const signIn = (email: string, password: string) => {
-  if (BYPASS_AUTH) {
-    // Mock successful sign in
-    return Promise.resolve({
-      user: mockUser,
-    });
-  }
   return signInWithEmailAndPassword(auth, email, password);
 };
 
 // Create a new user with email and password
 export const signUp = (email: string, password: string) => {
-  if (BYPASS_AUTH) {
-    // Mock successful sign up
-    return Promise.resolve({
-      user: mockUser,
-    });
-  }
   return createUserWithEmailAndPassword(auth, email, password);
 };
 
 // Sign out
 export const signOut = () => {
-  if (BYPASS_AUTH) {
-    // Mock successful sign out
-    return Promise.resolve();
-  }
   return firebaseSignOut(auth);
 };
 
 // Sign in with Google
 export const signInWithGoogle = () => {
-  if (BYPASS_AUTH) {
-    return Promise.resolve({ user: mockUser });
-  }
   const provider = new GoogleAuthProvider();
   return signInWithPopup(auth, provider);
 };
@@ -121,18 +99,10 @@ const mockUserData: UserData = {
 // Custom hook to get the current user and role
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(!BYPASS_AUTH);
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    if (BYPASS_AUTH) {
-      // Set mock user when bypassing authentication
-      setCurrentUser(mockUser);
-      setUserData(mockUserData);
-      setLoading(false);
-      return () => {};
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
 

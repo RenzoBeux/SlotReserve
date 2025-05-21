@@ -4,9 +4,6 @@ import { UserRole } from "@/lib/firebase";
 import { useGetMe } from "@/api/hooks/useUser";
 import { Loader } from "lucide-react";
 
-// This should match the BYPASS_AUTH flag in firebase.ts
-const BYPASS_AUTH = false;
-
 interface AuthRequiredProps {
   children: React.ReactNode;
   requiredRole?: UserRole;
@@ -21,16 +18,14 @@ const AuthRequired = ({ children, requiredRole }: AuthRequiredProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!BYPASS_AUTH) {
-      if (!loading && !user) {
-        // User is not logged in, redirect to login
-        navigate("/login", { replace: true });
-      } else if (!loading && user && requiredRole) {
-        // Check if user has the required role
-        if (userData?.role !== requiredRole) {
-          // User doesn't have the required role, redirect to dashboard
-          navigate("/dashboard", { replace: true });
-        }
+    if (!loading && !user) {
+      // User is not logged in, redirect to login
+      navigate("/login", { replace: true });
+    } else if (!loading && user && requiredRole) {
+      // Check if user has the required role
+      if (userData?.role !== requiredRole) {
+        // User doesn't have the required role, redirect to dashboard
+        navigate("/dashboard", { replace: true });
       }
     }
   }, [user, loading, navigate, requiredRole, userData]);
@@ -43,11 +38,11 @@ const AuthRequired = ({ children, requiredRole }: AuthRequiredProps) => {
     );
   }
 
-  if (!user && !BYPASS_AUTH) {
+  if (!user) {
     return null;
   }
 
-  if (requiredRole && userData?.role !== requiredRole && !BYPASS_AUTH) {
+  if (requiredRole && userData?.role !== requiredRole) {
     return null;
   }
 

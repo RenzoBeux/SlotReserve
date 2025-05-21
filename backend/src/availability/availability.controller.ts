@@ -1,4 +1,5 @@
 import { Controller, Req, Body, Param } from '@nestjs/common';
+import { Public } from '../common/decorators/public.decorator';
 import { contract } from '@contract';
 import { AvailabilityService } from './availability.service';
 import { UserService } from '../user/user.service';
@@ -24,6 +25,7 @@ export class AvailabilityController {
     description: 'Bulk create availability slots',
     type: [Object],
   })
+  // Auth guard is now global
   @TsRestHandler(contract.availability.createBulk)
   createBulk(
     @Req() req: AuthenticatedRequest,
@@ -45,6 +47,7 @@ export class AvailabilityController {
     type: [Object],
   })
   @TsRestHandler(contract.availability.getBySlug)
+  @Public()
   getBySlug(@Param('slug') slug: string) {
     return tsRestHandler(
       contract.availability.getBySlug,
@@ -55,7 +58,15 @@ export class AvailabilityController {
           return { status: 404, body: null };
         }
         const slots = await this.availabilityService.getMine(user.id);
-        return { status: 200, body: slots };
+        // Compose owner info for public calendar
+        const owner = {
+          id: user.id,
+          name: user.name,
+          logo: user.logo ?? undefined,
+          primaryColor: user.primaryColor ?? undefined,
+          secondaryColor: user.secondaryColor ?? undefined,
+        };
+        return { status: 200, body: { owner, slots } };
       },
     );
   }
@@ -65,6 +76,7 @@ export class AvailabilityController {
   @TsRestHandler(contract.availability.getMine)
   getMine(@Req() req: AuthenticatedRequest) {
     return tsRestHandler(contract.availability.getMine, async () => {
+      console.log(req.user);
       const userId = req.user.uid;
       const slots = await this.availabilityService.getMine(userId);
       return { status: 200, body: slots };

@@ -3,9 +3,6 @@ import { useAuth } from "@/lib/firebase";
 import { Loader } from "lucide-react";
 import { Outlet, Navigate } from "react-router-dom";
 
-// This should match the BYPASS_AUTH flag in firebase.ts
-const BYPASS_AUTH = false;
-
 const AuthLayout = () => {
   const { user, loading } = useAuth();
   const { data: userData, isLoading } = useGetMe();
@@ -18,7 +15,7 @@ const AuthLayout = () => {
     );
   }
 
-  if (!user && !BYPASS_AUTH) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
